@@ -22,7 +22,7 @@ plugins {
 
 group = 'com.omahaprogrammer'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '14'
+sourceCompatibility = JavaVersion.VERSION_14
 
 repositories {
 	mavenCentral()
