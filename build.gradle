@@ -41,6 +41,8 @@ dependencies {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
 	testImplementation 'org.springframework.security:spring-security-test:5.3.2.RELEASE'
+
+	annotationProcessor 'org.hibernate:hibernate-jpamodelgen:5.4.15.Final'
 }
 
 test {
