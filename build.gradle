@@ -35,8 +35,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.3.0.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-security:2.3.0.RELEASE'
 	implementation 'org.springframework.boot:spring-boot-starter-web:2.3.0.RELEASE'
+
 	developmentOnly 'org.springframework.boot:spring-boot-devtools:2.3.0.RELEASE'
+
 	runtimeOnly 'org.postgresql:postgresql:42.2.12'
+
 	testImplementation('org.springframework.boot:spring-boot-starter-test:2.3.0.RELEASE') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
