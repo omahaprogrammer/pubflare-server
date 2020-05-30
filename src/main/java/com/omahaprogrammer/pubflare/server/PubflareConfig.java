@@ -19,6 +19,7 @@ package com.omahaprogrammer.pubflare.server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -36,11 +37,12 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-public class PubflareSecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableJpaRepositories("com.omahaprogrammer.pubflare.server.repositories")
+public class PubflareConfig extends WebSecurityConfigurerAdapter {
     private final DataSource dataSource;
 
     @Autowired
-    public PubflareSecurityConfig(DataSource dataSource) {
+    public PubflareConfig(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

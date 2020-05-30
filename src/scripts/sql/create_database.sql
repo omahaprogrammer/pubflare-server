@@ -14,6 +14,13 @@
 * limitations under the License.
 */
 
+drop table if exists relationship_request cascade;
+drop table if exists relationship_status cascade;
+drop table if exists relationship cascade;
+drop table if exists flare_preference cascade;
+drop table if exists flare_response cascade;
+drop table if exists flare cascade;
+
 drop table if exists profile_username cascade;
 drop table if exists profile_pictures cascade;
 drop table if exists profile_website cascade;
@@ -21,7 +28,7 @@ drop table if exists profile_email cascade;
 drop table if exists profile_phone cascade;
 drop table if exists profile_address cascade;
 drop table if exists profile_gender cascade;
-drop table if exists profile_birthdate cascade;
+drop table if exists profile_birth_date cascade;
 drop table if exists profile cascade;
 
 drop table if exists persistent_logins cascade;
@@ -93,18 +100,20 @@ create table profile (
     family_name text,
     middle_name text,
     nickname text,
-    zoneinfo text,
+    zone_info text,
     locale text,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
 );
 
 create table profile_username (
     id bigserial primary key,
-    profile_id bigint not null references profile (id),
+    profile_id bigint not null unique references profile (id),
     username text references users (username),
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint,
     unique (profile_id, username)
 );
 
@@ -112,17 +121,19 @@ create table profile_pictures (
     id bigserial primary key,
     profile_id bigint not null references profile (id),
     picture_date bytea not null,
-    main_picture boolean not null default false,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp
+    main_picture boolean not null,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
 );
 
 create table profile_website (
     id bigserial primary key,
     profile_id bigint not null references profile (id),
     website text not null,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
 );
 
 create table profile_email (
@@ -130,10 +141,11 @@ create table profile_email (
     profile_id bigint not null references profile (id),
     email_type text,
     email text not null,
-    email_verified boolean not null default false,
-    main_email boolean not null default false,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp
+    email_verified boolean not null,
+    main_email boolean not null,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
 );
 
 create table profile_phone (
@@ -141,10 +153,11 @@ create table profile_phone (
     profile_id bigint not null references profile (id),
     phone_type text,
     phone text not null,
-    phone_verified boolean not null default false,
-    main_phone boolean not null default false,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp
+    phone_verified boolean not null,
+    main_phone boolean not null,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
 );
 
 create table profile_address (
@@ -156,24 +169,99 @@ create table profile_address (
     region text,
     postal_code text,
     country text,
-    main_address boolean not null default false,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp,
+    main_address boolean not null,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint,
     check (coalesce(street_address, locality, region, postal_code, country) is not null)
 );
 
 create table profile_gender (
     id bigserial primary key,
-    profile_id bigint not null references profile (id) unique,
+    profile_id bigint not null unique references profile (id),
     gender text not null,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
 );
 
-create table profile_birthdate (
+create table profile_birth_date (
     id bigserial primary key,
-    profile_id bigint not null references profile (id) unique,
-    birthdate date not null,
-    created_at timestamp not null default current_timestamp,
-    updated_at timestamp not null default current_timestamp
+    profile_id bigint not null unique references profile (id),
+    birth_date date not null,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
+);
+
+create table relationship (
+    id bigserial primary key,
+    profile_id_1 bigint not null references profile (id),
+    profile_id_2 bigint not null references profile (id),
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
+);
+
+create table relationship_status (
+    id bigserial primary key,
+    profile_id bigint not null references profile (id),
+    relationship_id bigint not null references relationship (id),
+    silenced boolean not null,
+    blocked boolean not null,
+    expires timestamp,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
+);
+
+create table relationship_request (
+    id bigserial primary key,
+    requester_profile_id bigint not null references profile (id),
+    requested_profile_id bigint references profile (id),
+    request_uuid uuid not null,
+    expires timestamp,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
+);
+
+create table flare_preference (
+    id bigserial primary key,
+    profile_id bigint not null references profile (id),
+    flare_preference_type text not null,
+    start_time time,
+    end_time time,
+    within_area geometry,
+    beyond_area geometry,
+    within_current_location_meters decimal(12,4),
+    beyond_current_location_meters decimal(12,4),
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
+);
+
+create table flare (
+    id bigserial primary key,
+    flare_uuid uuid not null unique,
+    profile_id bigint not null references profile (id),
+    flare_location geometry,
+    flare_destination geometry,
+    already_there boolean not null,
+    shareable boolean not null,
+    expires timestamp,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
+);
+
+create table flare_response (
+    id bigserial primary key,
+    flare_id bigint not null references flare (id),
+    respondent_profile_id bigint not null references profile (id),
+    response text not null,
+    message text,
+    created_at timestamp not null,
+    updated_at timestamp not null,
+    version bigint
 );
