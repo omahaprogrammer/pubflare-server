@@ -282,12 +282,12 @@ begin
 end
 $$ language plpgsql;
 
-create or replace function get_flares(profile_id int, curr_loc geography, now timestamp)
+create or replace function get_flares(prof_id int, curr_lat double precision, curr_long double precision, now timestamp)
 returns table (flare_id flare.id%type, pref flare_preference.flare_preference_type%type)
 as $$
 declare
+    curr_loc geography := st_setsrid(st_makepoint(curr_long, curr_lat), 4326)::geography;
 	now timestamp := current_timestamp at time zone 'UTC';
-	loc_circle geography;
 	friend_flares cursor for
 		select *
 		from flare f
@@ -295,12 +295,12 @@ declare
 			and f.profile_id in (
 				select r.relationship_to
 				from relationship r
-				where r.relationship_from = profile_id
+				where r.relationship_from = prof_id
 			);
 	prefs cursor for
 		select *
-		from flare_preference_type a
-		where a.profile_id = profile_id
+		from flare_preference a
+		where a.profile_id = prof_id
 		order by
 			case flare_preference_type
 				when 'IGNORE' then 1
