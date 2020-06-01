@@ -15,7 +15,6 @@
 */
 
 drop table if exists relationship_request cascade;
-drop table if exists relationship_status cascade;
 drop table if exists relationship cascade;
 drop table if exists flare_preference cascade;
 drop table if exists flare_response cascade;
@@ -195,24 +194,8 @@ create table profile_birth_date (
 );
 
 create table relationship (
-    id bigserial primary key,
-    profile_id_1 bigint not null references profile (id),
-    profile_id_2 bigint not null references profile (id),
-    created_at timestamp not null,
-    updated_at timestamp not null,
-    version bigint
-);
-
-create table relationship_status (
-    id bigserial primary key,
-    profile_id bigint not null references profile (id),
-    relationship_id bigint not null references relationship (id),
-    silenced boolean not null,
-    blocked boolean not null,
-    expires timestamp,
-    created_at timestamp not null,
-    updated_at timestamp not null,
-    version bigint
+    relationship_from bigint not null references profile (id),
+    relationship_to bigint not null references profile (id)
 );
 
 create table relationship_request (
@@ -232,21 +215,24 @@ create table flare_preference (
     flare_preference_type text not null,
     start_time time,
     end_time time,
-    within_area geometry,
-    beyond_area geometry,
+    within_area geography,
+    beyond_area geography,
     within_current_location_meters decimal(12,4),
     beyond_current_location_meters decimal(12,4),
     created_at timestamp not null,
     updated_at timestamp not null,
-    version bigint
+    version bigint,
+    check ((start_time is null and end_time is null) or (start_time is not null and end_time is not null and start_time <> end_time)),
+    check ((within_area is null and beyond_area is null) or (within_area is not null and beyond_area is null) or (within_area is null and beyond_area is not null)),
+    check ((within_current_location_meters is null and beyond_current_location_meters is null) or (within_current_location_meters is not null and within_current_location_meters > 0 and beyond_current_location_meters is null) or (within_current_location_meters is null and beyond_current_location_meters is not null and beyond_current_location_meters > 0))
 );
 
 create table flare (
     id bigserial primary key,
     flare_uuid uuid not null unique,
     profile_id bigint not null references profile (id),
-    flare_location geometry,
-    flare_destination geometry,
+    flare_location geography,
+    flare_destination geography,
     already_there boolean not null,
     shareable boolean not null,
     expires timestamp,
@@ -265,3 +251,76 @@ create table flare_response (
     updated_at timestamp not null,
     version bigint
 );
+
+create or replace function is_flare_pref_active(pref flare_preference, fl flare, curr_loc geography, now timestamp)
+returns boolean
+as $$
+declare
+	loc_circle geography;
+begin
+	if pref.start_time is not null then
+		if pref.start_time < pref.end_time and now::time between pref.start_time and pref.end_time then
+			return true;
+		elsif pref.start_time > pref.end_time and now::time not between pref.end_time and pref.start_time then
+			return true;
+		else
+			return false;
+		end if;
+	elsif pref.within_area is not null and st_covers(pref.within_area, curr_loc) then
+		return true;
+	elsif pref.beyond_area is not null and not st_covers(pref.beyond_area, curr_loc) then
+		return true;
+	elsif pref.within_current_location_meters is not null then
+		loc_circle := st_transform(st_buffer(st_transform(curr_loc, 4978), pref.within_current_location_meters),4326);
+		return st_covers(loc_circle, fl.flare_destination);
+	elsif pref.beyond_current_location_meters is not null then
+		loc_circle := st_transform(st_buffer(st_transform(curr_loc, 4978), pref.beyond_current_location_meters),4326);
+		return not st_covers(loc_circle, fl.flare_destination);
+	else
+		return false;
+	end if;
+end
+$$ language plpgsql;
+
+create or replace function get_flares(profile_id int, curr_loc geography, now timestamp)
+returns table (flare_id flare.id%type, pref flare_preference.flare_preference_type%type)
+as $$
+declare
+	now timestamp := current_timestamp at time zone 'UTC';
+	loc_circle geography;
+	friend_flares cursor for
+		select *
+		from flare f
+		where f.expires > now
+			and f.profile_id in (
+				select r.relationship_to
+				from relationship r
+				where r.relationship_from = profile_id
+			);
+	prefs cursor for
+		select *
+		from flare_preference_type a
+		where a.profile_id = profile_id
+		order by
+			case flare_preference_type
+				when 'IGNORE' then 1
+				when 'SILENT' then 2
+				when 'ALERT' then 3
+				else 999 end;
+begin
+	for flare in friend_flares loop
+		for pref in prefs loop
+			if is_flare_pref_active(pref, flare, curr_loc, now) then
+				if pref.flare_preference_type = 'IGNORE' then
+					exit;
+				else
+					flare_id := flare.id;
+					pref := pref.flare_preference_type;
+					return next;
+				end if;
+			end if;
+		end loop;
+	end loop;
+	return;
+end
+$$ language plpgsql;

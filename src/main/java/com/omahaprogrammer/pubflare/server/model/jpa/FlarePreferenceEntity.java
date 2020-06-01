@@ -30,7 +30,7 @@ import java.util.Objects;
 public class FlarePreferenceEntity {
     private long id;
     private long profileId;
-    private String flarePreferenceType;
+    private FlarePreferenceType flarePreferenceType;
     private LocalTime startTime;
     private LocalTime endTime;
     private Geometry<G2D> withinArea;
@@ -64,11 +64,12 @@ public class FlarePreferenceEntity {
 
     @Basic
     @Column(name = "flare_preference_type")
-    public String getFlarePreferenceType() {
+    @Enumerated(EnumType.STRING)
+    public FlarePreferenceType getFlarePreferenceType() {
         return flarePreferenceType;
     }
 
-    public void setFlarePreferenceType(String flarePreferenceType) {
+    public void setFlarePreferenceType(FlarePreferenceType flarePreferenceType) {
         this.flarePreferenceType = flarePreferenceType;
     }
 

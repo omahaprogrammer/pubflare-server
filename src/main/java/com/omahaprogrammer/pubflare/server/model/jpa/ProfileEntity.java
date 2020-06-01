@@ -47,8 +47,7 @@ public class ProfileEntity {
     private List<ProfilePicturesEntity> pictures;
     private ProfileUsernameEntity username;
     private ProfileWebsiteEntity website;
-    private List<RelationshipEntity> relationships1;
-    private List<RelationshipEntity> relationships2;
+    private List<ProfileEntity> friends;
 
     @Id
     @Column(name = "id")
@@ -285,21 +284,15 @@ public class ProfileEntity {
         this.website = website;
     }
 
-    @OneToMany(mappedBy = "profile1")
-    public List<RelationshipEntity> getRelationships1() {
-        return relationships1;
+    @ManyToMany
+    @JoinTable(name = "relationship", schema = "public", catalog = "pubflare",
+            joinColumns = {@JoinColumn(name = "relationship_from")},
+            inverseJoinColumns = {@JoinColumn(name = "relationship_to")})
+    public List<ProfileEntity> getFriends() {
+        return friends;
     }
 
-    public void setRelationships1(List<RelationshipEntity> relationships1) {
-        this.relationships1 = relationships1;
-    }
-
-    @OneToMany(mappedBy = "profile2")
-    public List<RelationshipEntity> getRelationships2() {
-        return relationships2;
-    }
-
-    public void setRelationships2(List<RelationshipEntity> relationships2) {
-        this.relationships2 = relationships2;
+    public void setFriends(List<ProfileEntity> friends) {
+        this.friends = friends;
     }
 }

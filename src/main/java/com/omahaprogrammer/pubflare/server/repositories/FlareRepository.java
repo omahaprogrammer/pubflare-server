@@ -17,9 +17,10 @@
 package com.omahaprogrammer.pubflare.server.repositories;
 
 import com.omahaprogrammer.pubflare.server.model.jpa.FlareEntity;
-import org.geolatte.geom.G2D;
+import com.omahaprogrammer.pubflare.server.model.jpa.ProfileEntity;
 import org.geolatte.geom.Point;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,5 +29,6 @@ import java.util.UUID;
 public interface FlareRepository extends JpaRepository<FlareEntity, Integer> {
     Optional<FlareEntity> findByFlareUuid(UUID uuid);
 
-    List<FlareEntity> findFlaresFromFriends(Point<G2D> location);
+    @Query("select new com.omahaprogrammer.pubflare.server.model.jpa.ActiveFlare(fl) from ProfileEntity p join p.friends fr join fr.flares fl where p = ?1")
+    List<FlareEntity> findActiveFlares(ProfileEntity user, Point<?> location);
 }

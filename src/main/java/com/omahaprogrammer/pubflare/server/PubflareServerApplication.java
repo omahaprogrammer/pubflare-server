@@ -19,10 +19,12 @@ package com.omahaprogrammer.pubflare.server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.sql.DriverManager;
+
 @SpringBootApplication
 public class PubflareServerApplication {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 		SpringApplication.run(PubflareServerApplication.class, args);
 	}
 
