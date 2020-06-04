@@ -29,7 +29,6 @@ import java.util.Objects;
 @Table(name = "flare_preference", schema = "public", catalog = "pubflare")
 public class FlarePreferenceEntity {
     private long id;
-    private long profileId;
     private FlarePreferenceType flarePreferenceType;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -50,16 +49,6 @@ public class FlarePreferenceEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "profile_id")
-    public long getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(long profileId) {
-        this.profileId = profileId;
     }
 
     @Basic
@@ -169,7 +158,6 @@ public class FlarePreferenceEntity {
         if (o == null || getClass() != o.getClass()) return false;
         FlarePreferenceEntity that = (FlarePreferenceEntity) o;
         return id == that.id &&
-                profileId == that.profileId &&
                 Objects.equals(flarePreferenceType, that.flarePreferenceType) &&
                 Objects.equals(startTime, that.startTime) &&
                 Objects.equals(endTime, that.endTime) &&
@@ -184,7 +172,7 @@ public class FlarePreferenceEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, profileId, flarePreferenceType, startTime, endTime, withinArea, beyondArea, withinCurrentLocationMeters, beyondCurrentLocationMeters, createdAt, updatedAt, version);
+        return Objects.hash(id, flarePreferenceType, startTime, endTime, withinArea, beyondArea, withinCurrentLocationMeters, beyondCurrentLocationMeters, createdAt, updatedAt, version);
     }
 
     @ManyToOne

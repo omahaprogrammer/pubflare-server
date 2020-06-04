@@ -25,8 +25,6 @@ import java.util.UUID;
 @Table(name = "relationship_request", schema = "public", catalog = "pubflare")
 public class RelationshipRequestEntity {
     private long id;
-    private long requesterProfileId;
-    private Long requestedProfileId;
     private UUID requestUuid;
     private Instant expires;
     private Instant createdAt;
@@ -43,26 +41,6 @@ public class RelationshipRequestEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "requester_profile_id")
-    public long getRequesterProfileId() {
-        return requesterProfileId;
-    }
-
-    public void setRequesterProfileId(long requesterProfileId) {
-        this.requesterProfileId = requesterProfileId;
-    }
-
-    @Basic
-    @Column(name = "requested_profile_id")
-    public Long getRequestedProfileId() {
-        return requestedProfileId;
-    }
-
-    public void setRequestedProfileId(Long requestedProfileId) {
-        this.requestedProfileId = requestedProfileId;
     }
 
     @Basic
@@ -122,8 +100,6 @@ public class RelationshipRequestEntity {
         if (o == null || getClass() != o.getClass()) return false;
         RelationshipRequestEntity that = (RelationshipRequestEntity) o;
         return id == that.id &&
-                requesterProfileId == that.requesterProfileId &&
-                Objects.equals(requestedProfileId, that.requestedProfileId) &&
                 Objects.equals(requestUuid, that.requestUuid) &&
                 Objects.equals(expires, that.expires) &&
                 Objects.equals(createdAt, that.createdAt) &&
@@ -133,7 +109,7 @@ public class RelationshipRequestEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, requesterProfileId, requestedProfileId, requestUuid, expires, createdAt, updatedAt, version);
+        return Objects.hash(id, requestUuid, expires, createdAt, updatedAt, version);
     }
 
     @OneToOne

@@ -25,7 +25,6 @@ import java.util.Objects;
 @Table(name = "profile_email", schema = "public", catalog = "pubflare")
 public class ProfileEmailEntity {
     private long id;
-    private Instant profileId;
     private String emailType;
     private String email;
     private boolean emailVerified;
@@ -43,16 +42,6 @@ public class ProfileEmailEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "profile_id")
-    public Instant getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(Instant profileId) {
-        this.profileId = profileId;
     }
 
     @Basic
@@ -134,7 +123,6 @@ public class ProfileEmailEntity {
         return id == that.id &&
                 emailVerified == that.emailVerified &&
                 mainEmail == that.mainEmail &&
-                Objects.equals(profileId, that.profileId) &&
                 Objects.equals(emailType, that.emailType) &&
                 Objects.equals(email, that.email) &&
                 Objects.equals(createdAt, that.createdAt) &&
@@ -144,7 +132,7 @@ public class ProfileEmailEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, profileId, emailType, email, emailVerified, mainEmail, createdAt, updatedAt, version);
+        return Objects.hash(id, emailType, email, emailVerified, mainEmail, createdAt, updatedAt, version);
     }
 
     @ManyToOne

@@ -25,7 +25,6 @@ import java.util.Objects;
 @Table(name = "profile_pictures", schema = "public", catalog = "pubflare")
 public class ProfilePicturesEntity {
     private long id;
-    private Instant profileId;
     private byte[] pictureDate;
     private boolean mainPicture;
     private Instant createdAt;
@@ -41,16 +40,6 @@ public class ProfilePicturesEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "profile_id")
-    public Instant getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(Instant profileId) {
-        this.profileId = profileId;
     }
 
     @Basic
@@ -111,7 +100,6 @@ public class ProfilePicturesEntity {
         ProfilePicturesEntity that = (ProfilePicturesEntity) o;
         return id == that.id &&
                 mainPicture == that.mainPicture &&
-                Objects.equals(profileId, that.profileId) &&
                 Arrays.equals(pictureDate, that.pictureDate) &&
                 Objects.equals(createdAt, that.createdAt) &&
                 Objects.equals(updatedAt, that.updatedAt) &&
@@ -120,7 +108,7 @@ public class ProfilePicturesEntity {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, profileId, mainPicture, createdAt, updatedAt, version);
+        int result = Objects.hash(id, mainPicture, createdAt, updatedAt, version);
         result = 31 * result + Arrays.hashCode(pictureDate);
         return result;
     }

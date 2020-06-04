@@ -15,7 +15,6 @@ import java.util.UUID;
 public class FlareEntity {
     private long id;
     private UUID flareUuid;
-    private long profileId;
     private Geometry<G2D> flareLocation;
     private Geometry<G2D> flareDestination;
     private boolean alreadyThere;
@@ -45,16 +44,6 @@ public class FlareEntity {
 
     public void setFlareUuid(UUID flareUuid) {
         this.flareUuid = flareUuid;
-    }
-
-    @Basic
-    @Column(name = "profile_id")
-    public long getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(long profileId) {
-        this.profileId = profileId;
     }
 
     @Basic
@@ -144,7 +133,6 @@ public class FlareEntity {
         if (o == null || getClass() != o.getClass()) return false;
         FlareEntity that = (FlareEntity) o;
         return id == that.id &&
-                profileId == that.profileId &&
                 alreadyThere == that.alreadyThere &&
                 shareable == that.shareable &&
                 Objects.equals(flareUuid, that.flareUuid) &&
@@ -158,7 +146,7 @@ public class FlareEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, flareUuid, profileId, flareLocation, flareDestination, alreadyThere, shareable, expires, createdAt, updatedAt, version);
+        return Objects.hash(id, flareUuid, flareLocation, flareDestination, alreadyThere, shareable, expires, createdAt, updatedAt, version);
     }
 
     @ManyToOne

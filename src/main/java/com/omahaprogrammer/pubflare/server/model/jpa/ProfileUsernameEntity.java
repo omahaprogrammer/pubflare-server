@@ -24,7 +24,6 @@ import java.util.Objects;
 @Table(name = "profile_username", schema = "public", catalog = "pubflare")
 public class ProfileUsernameEntity {
     private long id;
-    private Instant profileId;
     private String username;
     private Instant createdAt;
     private Instant updatedAt;
@@ -39,16 +38,6 @@ public class ProfileUsernameEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "profile_id")
-    public Instant getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(Instant profileId) {
-        this.profileId = profileId;
     }
 
     @Basic
@@ -98,7 +87,6 @@ public class ProfileUsernameEntity {
         if (o == null || getClass() != o.getClass()) return false;
         ProfileUsernameEntity that = (ProfileUsernameEntity) o;
         return id == that.id &&
-                Objects.equals(profileId, that.profileId) &&
                 Objects.equals(username, that.username) &&
                 Objects.equals(createdAt, that.createdAt) &&
                 Objects.equals(updatedAt, that.updatedAt) &&
@@ -107,7 +95,7 @@ public class ProfileUsernameEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, profileId, username, createdAt, updatedAt, version);
+        return Objects.hash(id, username, createdAt, updatedAt, version);
     }
 
     @OneToOne

@@ -93,7 +93,7 @@ create table acl_entry (
 
 create table profile (
     id bigserial primary key,
-    profile_uuid uuid not null,
+    profile_uuid uuid unique not null,
     full_name text,
     given_name text,
     family_name text,
@@ -108,7 +108,7 @@ create table profile (
 
 create table profile_username (
     id bigserial primary key,
-    profile_id bigint not null unique references profile (id),
+    profile_id bigint unique not null references profile (id),
     username text references users (username),
     created_at timestamp not null,
     updated_at timestamp not null,
@@ -202,7 +202,7 @@ create table relationship_request (
     id bigserial primary key,
     requester_profile_id bigint not null references profile (id),
     requested_profile_id bigint references profile (id),
-    request_uuid uuid not null,
+    request_uuid uuid unique not null,
     expires timestamp,
     created_at timestamp not null,
     updated_at timestamp not null,
@@ -229,7 +229,7 @@ create table flare_preference (
 
 create table flare (
     id bigserial primary key,
-    flare_uuid uuid not null unique,
+    flare_uuid uuid unique not null,
     profile_id bigint not null references profile (id),
     flare_location geography,
     flare_destination geography,
@@ -282,45 +282,28 @@ begin
 end
 $$ language plpgsql;
 
-create or replace function get_flares(prof_id int, curr_lat double precision, curr_long double precision, now timestamp)
-returns table (flare_id flare.id%type, pref flare_preference.flare_preference_type%type)
+create or replace function get_flare_pref(param_profile_uuid profile.profile_uuid%type, param_flare_uuid flare.flare_uuid%type, curr_lat double precision, curr_long double precision, now timestamp)
+    returns text
 as $$
 declare
     curr_loc geography := st_setsrid(st_makepoint(curr_long, curr_lat), 4326)::geography;
-	now timestamp := current_timestamp at time zone 'UTC';
-	friend_flares cursor for
-		select *
-		from flare f
-		where f.expires > now
-			and f.profile_id in (
-				select r.relationship_to
-				from relationship r
-				where r.relationship_from = prof_id
-			);
-	prefs cursor for
-		select *
-		from flare_preference a
-		where a.profile_id = prof_id
-		order by
-			case flare_preference_type
-				when 'IGNORE' then 1
-				when 'SILENT' then 2
-				when 'ALERT' then 3
-				else 999 end;
+    flare_record flare%rowtype;
+    prefs cursor for
+        select *
+        from flare_preference a
+        where a.profile_id = (select id from profile where profile_uuid = param_profile_uuid)
+        order by
+            case flare_preference_type
+                when 'IGNORE' then 1
+                when 'SILENT' then 2
+                when 'ALERT' then 3
+                else 999 end;
 begin
-	for flare in friend_flares loop
-		for pref in prefs loop
-			if is_flare_pref_active(pref, flare, curr_loc, now) then
-				if pref.flare_preference_type = 'IGNORE' then
-					exit;
-				else
-					flare_id := flare.id;
-					pref := pref.flare_preference_type;
-					return next;
-				end if;
-			end if;
-		end loop;
-	end loop;
-	return;
+    select * into flare_record from flare where flare_uuid = param_flare_uuid;
+    for pref in prefs loop
+        if is_flare_pref_active(pref, flare_record, curr_loc, now) then
+            return pref.flare_preference_type;
+        end if;
+    end loop;
 end
 $$ language plpgsql;

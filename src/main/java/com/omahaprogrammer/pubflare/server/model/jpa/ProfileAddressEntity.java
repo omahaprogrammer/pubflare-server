@@ -24,7 +24,6 @@ import java.util.Objects;
 @Table(name = "profile_address", schema = "public", catalog = "pubflare")
 public class ProfileAddressEntity {
     private long id;
-    private long profileId;
     private String addressType;
     private String streetAddress;
     private String locality;
@@ -45,16 +44,6 @@ public class ProfileAddressEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "profile_id")
-    public long getProfileId() {
-        return profileId;
-    }
-
-    public void setProfileId(long profileId) {
-        this.profileId = profileId;
     }
 
     @Basic
@@ -164,7 +153,6 @@ public class ProfileAddressEntity {
         if (o == null || getClass() != o.getClass()) return false;
         ProfileAddressEntity that = (ProfileAddressEntity) o;
         return id == that.id &&
-                profileId == that.profileId &&
                 mainAddress == that.mainAddress &&
                 Objects.equals(addressType, that.addressType) &&
                 Objects.equals(streetAddress, that.streetAddress) &&
@@ -179,7 +167,7 @@ public class ProfileAddressEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, profileId, addressType, streetAddress, locality, region, postalCode, country, mainAddress, createdAt, updatedAt, version);
+        return Objects.hash(id, addressType, streetAddress, locality, region, postalCode, country, mainAddress, createdAt, updatedAt, version);
     }
 
     @ManyToOne

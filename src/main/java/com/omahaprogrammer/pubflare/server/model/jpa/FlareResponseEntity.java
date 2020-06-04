@@ -24,8 +24,6 @@ import java.util.Objects;
 @Table(name = "flare_response", schema = "public", catalog = "pubflare")
 public class FlareResponseEntity {
     private long id;
-    private long flareId;
-    private long respondentProfileId;
     private String response;
     private String message;
     private Instant createdAt;
@@ -42,26 +40,6 @@ public class FlareResponseEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    @Basic
-    @Column(name = "flare_id")
-    public long getFlareId() {
-        return flareId;
-    }
-
-    public void setFlareId(long flareId) {
-        this.flareId = flareId;
-    }
-
-    @Basic
-    @Column(name = "respondent_profile_id")
-    public long getRespondentProfileId() {
-        return respondentProfileId;
-    }
-
-    public void setRespondentProfileId(long respondentProfileId) {
-        this.respondentProfileId = respondentProfileId;
     }
 
     @Basic
@@ -121,8 +99,6 @@ public class FlareResponseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         FlareResponseEntity that = (FlareResponseEntity) o;
         return id == that.id &&
-                flareId == that.flareId &&
-                respondentProfileId == that.respondentProfileId &&
                 Objects.equals(response, that.response) &&
                 Objects.equals(message, that.message) &&
                 Objects.equals(createdAt, that.createdAt) &&
@@ -132,7 +108,7 @@ public class FlareResponseEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, flareId, respondentProfileId, response, message, createdAt, updatedAt, version);
+        return Objects.hash(id, response, message, createdAt, updatedAt, version);
     }
 
     @ManyToOne
