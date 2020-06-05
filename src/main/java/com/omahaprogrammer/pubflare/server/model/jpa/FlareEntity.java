@@ -28,6 +28,7 @@ public class FlareEntity {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue
     public long getId() {
         return id;
     }

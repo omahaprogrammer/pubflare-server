@@ -215,15 +215,18 @@ create table flare_preference (
     flare_preference_type text not null,
     start_time time,
     end_time time,
-    within_area geography,
-    beyond_area geography,
+    self_within_area geography,
+    self_beyond_area geography,
+    flare_within_area geography,
+    flare_beyond_area geography,
     within_current_location_meters decimal(12,4),
     beyond_current_location_meters decimal(12,4),
     created_at timestamp not null,
     updated_at timestamp not null,
     version bigint,
     check ((start_time is null and end_time is null) or (start_time is not null and end_time is not null and start_time <> end_time)),
-    check ((within_area is null and beyond_area is null) or (within_area is not null and beyond_area is null) or (within_area is null and beyond_area is not null)),
+    check ((self_within_area is null and self_beyond_area is null) or (self_within_area is not null and self_beyond_area is null) or (self_within_area is null and self_beyond_area is not null)),
+    check ((flare_within_area is null and flare_beyond_area is null) or (flare_within_area is not null and flare_beyond_area is null) or (flare_within_area is null and flare_beyond_area is not null)),
     check ((within_current_location_meters is null and beyond_current_location_meters is null) or (within_current_location_meters is not null and within_current_location_meters > 0 and beyond_current_location_meters is null) or (within_current_location_meters is null and beyond_current_location_meters is not null and beyond_current_location_meters > 0))
 );
 
@@ -266,9 +269,13 @@ begin
 		else
 			return false;
 		end if;
-	elsif pref.within_area is not null and st_covers(pref.within_area, curr_loc) then
+    elsif pref.self_within_area is not null and st_covers(pref.self_within_area, curr_loc) then
+        return true;
+    elsif pref.self_beyond_area is not null and not st_covers(pref.self_beyond_area, curr_loc) then
+        return true;
+	elsif pref.flare_within_area is not null and st_covers(pref.flare_within_area, fl.flare_destination) then
 		return true;
-	elsif pref.beyond_area is not null and not st_covers(pref.beyond_area, curr_loc) then
+	elsif pref.flare_beyond_area is not null and not st_covers(pref.flare_beyond_area, fl.flare_destination) then
 		return true;
 	elsif pref.within_current_location_meters is not null then
 		loc_circle := st_transform(st_buffer(st_transform(curr_loc, 4978), pref.within_current_location_meters),4326);

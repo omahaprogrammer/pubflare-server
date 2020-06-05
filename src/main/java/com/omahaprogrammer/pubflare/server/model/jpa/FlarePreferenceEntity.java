@@ -32,8 +32,10 @@ public class FlarePreferenceEntity {
     private FlarePreferenceType flarePreferenceType;
     private LocalTime startTime;
     private LocalTime endTime;
-    private Geometry<G2D> withinArea;
-    private Geometry<G2D> beyondArea;
+    private Geometry<G2D> selfWithinArea;
+    private Geometry<G2D> selfBeyondArea;
+    private Geometry<G2D> flareWithinArea;
+    private Geometry<G2D> flareBeyondArea;
     private BigDecimal withinCurrentLocationMeters;
     private BigDecimal beyondCurrentLocationMeters;
     private Instant createdAt;
@@ -83,22 +85,41 @@ public class FlarePreferenceEntity {
     }
 
     @Basic
-    @Column(name = "within_area")
-    public Geometry<G2D> getWithinArea() {
-        return withinArea;
+    @Column(name = "self_within_area")
+    public Geometry<G2D> getSelfWithinArea() {
+        return selfWithinArea;
     }
 
-    public void setWithinArea(Geometry<G2D> withinArea) {
-        this.withinArea = withinArea;
+    public void setSelfWithinArea(Geometry<G2D> selfWithinArea) {
+        this.selfWithinArea = selfWithinArea;
     }
 
-    @Column(name = "beyond_area")
-    public Geometry<G2D> getBeyondArea() {
-        return beyondArea;
+    @Column(name = "self_beyond_area")
+    public Geometry<G2D> getSelfBeyondArea() {
+        return selfBeyondArea;
     }
 
-    public void setBeyondArea(Geometry<G2D> beyondArea) {
-        this.beyondArea = beyondArea;
+    public void setSelfBeyondArea(Geometry<G2D> selfBeyondArea) {
+        this.selfBeyondArea = selfBeyondArea;
+    }
+
+    @Basic
+    @Column(name = "flare_within_area")
+    public Geometry<G2D> getFlareWithinArea() {
+        return flareWithinArea;
+    }
+
+    public void setFlareWithinArea(Geometry<G2D> flareWithinArea) {
+        this.flareWithinArea = flareWithinArea;
+    }
+
+    @Column(name = "flare_beyond_area")
+    public Geometry<G2D> getFlareBeyondArea() {
+        return flareBeyondArea;
+    }
+
+    public void setFlareBeyondArea(Geometry<G2D> flareBeyondArea) {
+        this.flareBeyondArea = flareBeyondArea;
     }
 
     @Basic
@@ -161,8 +182,10 @@ public class FlarePreferenceEntity {
                 Objects.equals(flarePreferenceType, that.flarePreferenceType) &&
                 Objects.equals(startTime, that.startTime) &&
                 Objects.equals(endTime, that.endTime) &&
-                Objects.equals(withinArea, that.withinArea) &&
-                Objects.equals(beyondArea, that.beyondArea) &&
+                Objects.equals(selfWithinArea, that.selfWithinArea) &&
+                Objects.equals(selfBeyondArea, that.selfBeyondArea) &&
+                Objects.equals(flareWithinArea, that.flareWithinArea) &&
+                Objects.equals(flareBeyondArea, that.flareBeyondArea) &&
                 Objects.equals(withinCurrentLocationMeters, that.withinCurrentLocationMeters) &&
                 Objects.equals(beyondCurrentLocationMeters, that.beyondCurrentLocationMeters) &&
                 Objects.equals(createdAt, that.createdAt) &&
@@ -172,7 +195,7 @@ public class FlarePreferenceEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, flarePreferenceType, startTime, endTime, withinArea, beyondArea, withinCurrentLocationMeters, beyondCurrentLocationMeters, createdAt, updatedAt, version);
+        return Objects.hash(id, flarePreferenceType, startTime, endTime, selfWithinArea, selfBeyondArea, flareWithinArea, flareBeyondArea, withinCurrentLocationMeters, beyondCurrentLocationMeters, createdAt, updatedAt, version);
     }
 
     @ManyToOne
