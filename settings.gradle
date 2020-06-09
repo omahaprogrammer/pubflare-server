@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-rootProject.name = 'pubflare.server'
+rootProject.name = 'pubflare-server'
