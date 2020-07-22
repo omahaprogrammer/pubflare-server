@@ -13,6 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+--create extension if not exists postgis;
+--create extension if not exists postgis_raster;
+--create extension if not exists postgis_topology;
 
 drop table if exists relationship_request cascade;
 drop table if exists relationship cascade;
